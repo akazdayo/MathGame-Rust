@@ -1,34 +1,25 @@
-pub mod app;
-pub mod event;
-pub mod ui;
+mod problem;
 
-use anyhow::Result;
-use app::App;
-use crossterm::{
-    event::{DisableMouseCapture, EnableMouseCapture},
-    terminal::{self, EnterAlternateScreen, LeaveAlternateScreen},
-};
-use ratatui::prelude::{CrosstermBackend, Terminal};
+use problem::Problem;
 use std::io;
+use std::io::Write;
 
-fn main() -> Result<()> {
-    // Create an application.
-    let mut app = App::new();
+fn read_input() -> String {
+    io::stdout().flush().unwrap();
+    let mut guess = String::new();
+    io::stdin().read_line(&mut guess).expect("入力エラー");
+    return guess;
+}
 
-    // Initialize the terminal user interface.
-    let backend = CrosstermBackend::new(std::io::stderr());
-    let terminal = Terminal::new(backend);
-
-    // 開始処理
-    terminal::enable_raw_mode()?;
-    crossterm::execute!(io::stderr(), EnterAlternateScreen, EnableMouseCapture)?;
-    //ループ
-    loop {
-        break;
-    }
-
-    // 終了処理
-    terminal::disable_raw_mode()?;
-    crossterm::execute!(io::stderr(), LeaveAlternateScreen, DisableMouseCapture)?;
-    Ok(())
+fn main() {
+    let mut problem = Problem::new();
+    problem.create();
+    let answer = problem.check();
+    println!("{} {} {} = ?", problem.num1, problem.operator, problem.num2);
+    let guess = read_input();
+    println!(
+        "{}, {}",
+        answer,
+        answer == guess.trim().parse::<i32>().unwrap()
+    );
 }
